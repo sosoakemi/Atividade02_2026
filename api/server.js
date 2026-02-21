@@ -44,7 +44,7 @@ app.post('/products', (req, res) => {
 })
 
 app.get('/products', (req, res) => {
-    const query = 'SELECT name, price, description, category FROM produtos_sophiaakemi'
+    const query = 'SELECT id, name, price, description, category FROM produtos_sophiaakemi'
 
     pool.query(query, (err, results) => {
         if (err) {
@@ -52,6 +52,23 @@ app.get('/products', (req, res) => {
             res.status(500).json({ message: 'Erro ao buscar produtos', error: err })
         } else {
             res.status(200).json(results)
+        }
+    })
+})
+
+app.delete('/products/:id', (req, res) => {
+    const { id } = req.params
+
+    const query = 'DELETE FROM produtos_sophiaakemi WHERE id = ?'
+
+    pool.query(query, [id], (err, result) => {
+        if (err) {
+            console.error('Erro ao deletar produto:', err)
+            res.status(500).json({ message: 'Erro ao deletar produto', error: err })
+        } else if (result.affectedRows === 0) {
+            res.status(404).json({ message: 'Produto não encontrado' })
+        } else {
+            res.status(200).json({ message: 'Produto deletado com sucesso!' })
         }
     })
 })
