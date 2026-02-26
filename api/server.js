@@ -56,6 +56,41 @@ app.get('/products', (req, res) => {
     })
 })
 
+app.get('/products/:id', (req, res) => {
+    const { id } = req.params
+    const query = 'SELECT id, name, price, description, category FROM produtos_sophiaakemi WHERE id = ?'
+
+    pool.query(query, [id], (err, results) => {
+        if (err) {
+            console.error('Erro ao buscar produto:', err)
+            res.status(500).json({ message: 'Erro ao buscar produto', error: err })
+        } else if (results.length === 0) {
+            res.status(404).json({ message: 'Produto não encontrado' })
+        } else {
+            res.status(200).json(results[0])
+        }
+    })
+})
+
+app.put('/products/:id', (req, res) => {
+    const { id } = req.params
+    const { name, price, description, category } = req.body
+
+    const query = 'UPDATE produtos_sophiaakemi SET name = ?, price = ?, description = ?, category = ? WHERE id = ?'
+    const values = [name, price, description, category, id]
+
+    pool.query(query, values, (err, result) => {
+        if (err) {
+            console.error('Erro ao atualizar produto:', err)
+            res.status(500).json({ message: 'Erro ao atualizar produto', error: err })
+        } else if (result.affectedRows === 0) {
+            res.status(404).json({ message: 'Produto não encontrado' })
+        } else {
+            res.status(200).json({ message: 'Produto atualizado com sucesso!' })
+        }
+    })
+})
+
 app.delete('/products/:id', (req, res) => {
     const { id } = req.params
 
